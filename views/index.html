@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Blockly Snake</title>
+
+        <script src="/scripts/blockly/blockly_compressed.js"></script>
+        <script src="/scripts/blockly/blocks_compressed.js"></script>
+        <script src="/scripts/blockly/msg/en.js"></script>
+        <script src="/scripts/blockly/javascript_compressed.js"></script>
+        
+        
+    </head>
+    <body>
+    <div id="blocklyDiv" style="height: 600px; width:800px;"></div>
+    <pre id="textarea"></pre>
+
+    {% include "partials/toolbox.html" %}
+    <script src="/scripts/socket.io/client-dist/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        socket.on("receiveMove", function(gameState){
+            console.log(gameState);
+            var code = Blockly.JavaScript.workspaceToCode(demoWorkspace);
+            (new Function("generated", code))();
+        });
+
+        var demoWorkspace = Blockly.inject('blocklyDiv',
+            {media: 'https://unpkg.com/blockly/media/',
+             toolbox: document.getElementById('toolbox')});
+
+        function myUpdateFunction(event) {
+            var code = Blockly.JavaScript.workspaceToCode(demoWorkspace);
+            document.getElementById('textarea').innerHTML = code;
+        }
+        demoWorkspace.addChangeListener(myUpdateFunction);
+
+             
+    </script>
+    </body>
+    
+</html>

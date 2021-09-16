@@ -14,7 +14,11 @@
   "license": "MIT",
   "homepage": "https://github.com/BattlesnakeOfficial/starter-snake-javascript#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "blockly": "^6.20210701.0",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.12",
+    "nunjucks": "^3.2.3",
+    "socket.io": "^4.2.0"
   },
   "devDependencies": {
     "jest": "^27.0.6"
