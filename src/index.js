@@ -16,6 +16,7 @@ app.get("/blockly", (req, res) => {
 
 app.use(express.json());
 app.use("/scripts", express.static(__dirname + "/../node_modules/"));
+app.use("/blocks/", express.static(__dirname + "/blocks/"));
 
 console.log(__dirname);
 

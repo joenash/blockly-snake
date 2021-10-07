@@ -8,33 +8,53 @@
         <script src="/scripts/blockly/blocks_compressed.js"></script>
         <script src="/scripts/blockly/msg/en.js"></script>
         <script src="/scripts/blockly/javascript_compressed.js"></script>
+        <script src="/blocks/access_object_property.js"></script>
+        <script src="/blocks/console_log.js"></script>
         
         
     </head>
     <body>
     <div id="blocklyDiv" style="height: 600px; width:800px;"></div>
     <pre id="textarea"></pre>
-
     {% include "partials/toolbox.html" %}
     <script src="/scripts/socket.io/client-dist/socket.io.js"></script>
     <script>
         var socket = io();
 
         socket.on("receiveMove", function(gameState){
-            console.log(gameState);
             var code = Blockly.JavaScript.workspaceToCode(demoWorkspace);
-            (new Function("generated", code))();
+            eval(code);
+            //(new Function("generated", code))();
         });
 
         var demoWorkspace = Blockly.inject('blocklyDiv',
             {media: 'https://unpkg.com/blockly/media/',
              toolbox: document.getElementById('toolbox')});
 
+        load();
+
         function myUpdateFunction(event) {
             var code = Blockly.JavaScript.workspaceToCode(demoWorkspace);
+            var dom = Blockly.Xml.workspaceToDom(demoWorkspace);
+            save(dom);
             document.getElementById('textarea').innerHTML = code;
         }
         demoWorkspace.addChangeListener(myUpdateFunction);
+
+        function save(dom){
+            let text = Blockly.Xml.domToText(dom)
+            console.log(text);
+            localStorage.setItem("state", text);
+        }
+
+        function load(){
+            let loadedState = localStorage.getItem("state");
+            if (loadedState !== null) {
+                let xml = Blockly.Xml.textToDom(loadedState);
+                Blockly.Xml.appendDomToWorkspace(xml, demoWorkspace);
+            }
+            
+        }
 
              
     </script>
