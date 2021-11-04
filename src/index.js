@@ -1,14 +1,12 @@
+const { IOS_CANCEL } = require("blockly/msg/en");
 const express = require("express");
 const nunjucks = require("nunjucks");
-const http = require("http");
+const app = express();
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
 const { info, start, move, end } = require("./logic");
 
-const app = express();
 nunjucks.configure("views", { autoescape: true, express: app });
-
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
 
 app.get("/blockly", (req, res) => {
   res.render("index.html");
@@ -22,8 +20,14 @@ console.log(__dirname);
 
 const port = process.env.PORT || 8080;
 
+let moves = [];
+
 io.on("connection", (socket) => {
   console.log("a user connected");
+  app.socket = socket;
+  // socket.on("receiveMove", (move) => {
+  //   res.send({ move });
+  // });
 });
 
 app.get("/", (req, res) => {
@@ -35,19 +39,17 @@ app.post("/start", (req, res) => {
 });
 
 app.post("/move", (req, res) => {
-  io.emit("receiveMove", req.body);
-  res.send(move(req.body));
+  console.log("Emitting move");
+  app.socket.emit("receiveMove", req.body, (move) => {
+    //console.log({ res, move });
+    res.json({ move });
+  });
 });
 
 app.post("/end", (req, res) => {
   res.send(end(req.body));
 });
 
-// Start the Express server
-// app.listen(port, () => {
-//   console.log(`Starting Battlesnake Server at http://0.0.0.0:${port}...`);
-// });
-
-server.listen(8080, () => {
-  console.log("Listening on 8080");
+http.listen(port, () => {
+  console.log(`Listening on ${port}`);
 });

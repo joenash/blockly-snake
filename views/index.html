@@ -8,22 +8,27 @@
         <script src="/scripts/blockly/blocks_compressed.js"></script>
         <script src="/scripts/blockly/msg/en.js"></script>
         <script src="/scripts/blockly/javascript_compressed.js"></script>
-        <script src="/blocks/access_object_property.js"></script>
+        <script src="/blocks/json.js"></script>
         <script src="/blocks/console_log.js"></script>
+        <script src="/blocks/snake.js"></script>
         
         
     </head>
-    <body>
-    <div id="blocklyDiv" style="height: 600px; width:800px;"></div>
+    <body style="margin:0;">
+    <div id="blocklyDiv" style="height: 100vh; width:98vw;"></div>
     <pre id="textarea"></pre>
     {% include "partials/toolbox.html" %}
     <script src="/scripts/socket.io/client-dist/socket.io.js"></script>
     <script>
         var socket = io();
 
-        socket.on("receiveMove", function(gameState){
+        socket.on("receiveMove", (gameState, callback) => {
+            console.log("Move received");
             var code = Blockly.JavaScript.workspaceToCode(demoWorkspace);
-            eval(code);
+            const move = eval(code);
+            //console.log({gameState, callback, move})
+            console.log(move);
+            callback(move);
             //(new Function("generated", code))();
         });
 

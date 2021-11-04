@@ -1,6 +1,8 @@
 Blockly.Blocks["console_log"] = {
   init: function () {
     this.appendValueInput("object").setCheck(null).appendField("log");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
     this.setColour(300);
     this.setTooltip("");
     this.setHelpUrl("");
@@ -14,7 +16,7 @@ Blockly.JavaScript["console_log"] = function (block) {
     Blockly.JavaScript.ORDER_ATOMIC
   );
   // TODO: Assemble JavaScript into code variable.
-  var code = `console.log(${value_object})`;
+  var code = `console.log(${value_object});`;
   // TODO: Change ORDER_NONE to the correct strength.
   return code;
 };
