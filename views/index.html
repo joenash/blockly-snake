@@ -21,10 +21,10 @@
     <button id="copyBlockly">Copy XML</button>
     <button id="pasteBlockly">Paste XML</button>
     <div id="blocklyDiv" style="height: 80vh; width:98vw;"></div>
-    <!-- <input type="text" placeholder="Author" id="snakeAuthor">
+    <input type="text" placeholder="Author" id="snakeAuthor">
     <input type="text" placeholder="Color" id="snakeColor">
     <input type="text" placeholder="Snake head" id="snakeHead">
-    <input type="text" placeholder="Snake tail" id="snakeTail"> -->
+    <input type="text" placeholder="Snake tail" id="snakeTail">
     <pre id="textarea"></pre>
     {% include "partials/toolbox.html" %}
     <script src="/scripts/socket.io/client-dist/socket.io.js"></script>
@@ -47,24 +47,24 @@
             //(new Function("generated", code))();
         });
 
-        // socket.on("receiveInfo", (callback) => {
-        //     console.log("Info request received");
-        //     const snakeAuthor = document.getElementById("snakeAuthor").value;
-        //     const snakeColor = document.getElementById("snakeColor").value;
-        //     const snakeHead = document.getElementById("snakeHead").value;
-        //     const snakeTail = document.getElementById("snakeTail").value;
-        //     const snakeInfo = 
-        //             {
-        //             "apiversion": "1",
-        //             "author": (snakeAuthor !== null) ? snakeAuthor : "default",
-        //             "color": (snakeColor !== null) ? snakeColor : "default",
-        //             "head": (snakeHead !== null) ? snakeHead : "default",
-        //             "tail": (snakeTail !== null) ? snakeTail : "default",
-        //             "version" : "blockly"
-        //             }
-        //     console.log(snakeInfo);
-        //     callback(snakeInfo);
-        // });
+        socket.on("requestInfo", (callback) => {
+            console.log("Info request received");
+            const snakeAuthor = document.getElementById("snakeAuthor").value;
+            const snakeColor = document.getElementById("snakeColor").value;
+            const snakeHead = document.getElementById("snakeHead").value;
+            const snakeTail = document.getElementById("snakeTail").value;
+            const snakeInfo = 
+                    {
+                    "apiversion": "1",
+                    "author": (snakeAuthor !== null) ? snakeAuthor : "default",
+                    "color": (snakeColor !== null) ? snakeColor : "default",
+                    "head": (snakeHead !== null) ? snakeHead : "default",
+                    "tail": (snakeTail !== null) ? snakeTail : "default",
+                    "version" : "blockly"
+                    }
+            console.log(snakeInfo);
+            callback(snakeInfo);
+        });
 
         var demoWorkspace = Blockly.inject('blocklyDiv',
             {media: 'https://unpkg.com/blockly/media/',

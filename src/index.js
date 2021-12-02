@@ -4,7 +4,6 @@ const nunjucks = require("nunjucks");
 const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
-const { info, start, move, end } = require("./logic");
 
 nunjucks.configure("views", { autoescape: true, express: app });
 
@@ -56,22 +55,37 @@ io.on("connection", (socket) => {
   // });
 });
 
-app.get("/", (req, res) => {
-  res.send(info());
+app.get("/:id/", (req, res) => {
+  const snakeName = req.params.id;
+  console.log(`Snake name: ${snakeName}`);
+  let snakeSocket = sockets.find((o) => o.name === snakeName);
+
+  if (snakeSocket !== null) {
+    console.log(`Socket ${snakeSocket.id} found for ${snakeName}`);
+    console.log(`Emitting info request to ${snakeSocket.id}`);
+    snakeSocket.socket.emit("requestInfo", (info) => {
+      console.log(`sending info for ${snakeName}`);
+      console.log(info);
+      res.send(info);
+    });
+  } else {
+    console.log(`sending default info`);
+    res.send(info());
+  }
 });
 
-app.post("/start", (req, res) => {
-  res.send(start(req.body));
+app.post("/:id/start", (req, res) => {
+  res.send(req.body);
 });
 
-app.post("/move", (req, res) => {
+app.post("/:id/move", (req, res) => {
   //console.log(req.body);
   const snakeName = req.body.you.name;
   console.log(`Snake name: ${snakeName}`);
   let snakeSocket = sockets.find((o) => o.name === snakeName);
-  console.log(`Socket ${snakeSocket.id} found for ${snakeName}`);
 
-  if (snakeSocket.id !== null) {
+  if (snakeSocket !== null) {
+    console.log(`Socket ${snakeSocket.id} found for ${snakeName}`);
     console.log(`Emitting move to ${snakeSocket.id}`);
     snakeSocket.socket.emit("receiveMove", req.body, (move) => {
       console.log(`${snakeSocket.id} sent ${move} for ${snakeName}`);
@@ -82,6 +96,8 @@ app.post("/move", (req, res) => {
         res.json({ move: "left", shout: snakeName });
       }
     });
+  } else {
+    console.log(`No socket found for ${snakeName}`);
   }
 
   // app.socket.emit("receiveMove", req.body, (move) => {
@@ -90,8 +106,8 @@ app.post("/move", (req, res) => {
   // });
 });
 
-app.post("/end", (req, res) => {
-  res.send(end(req.body));
+app.post("/:id/end", (req, res) => {
+  res.send(req.body);
 });
 
 http.listen(port, () => {
