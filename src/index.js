@@ -21,10 +21,36 @@ console.log(__dirname);
 const port = process.env.PORT || 8080;
 
 let moves = [];
+let sockets = [];
+const validMoves = ["up", "down", "left", "right"];
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
-  app.socket = socket;
+  console.log(`Socket ${socket.id} connected`);
+  sockets.push({ id: socket.id, socket, snake: undefined });
+  //console.log(sockets);
+  socket.on("setName", (name) => {
+    console.log(`Name ${name} set by ${socket.id}`);
+    const snakeExists = sockets.findIndex((o) => o.name === name);
+    const socketIndex = sockets.findIndex((o) => o.id === socket.id);
+    if (
+      snakeExists !== -1 &&
+      socketIndex !== -1 &&
+      snakeExists !== socketIndex
+    ) {
+      console.log(`${name} found at ${socketIndex}`);
+      console.log(
+        `Duplicate name: overwriting ${sockets[snakeExists].id} in favour of ${socket.id}`
+      );
+      sockets[snakeExists] = { id: socket.id, socket, name: name };
+      sockets.splice(socketIndex, 1);
+      console.log(sockets);
+    } else if (socketIndex !== -1) {
+      console.log(`Socket found at ${socketIndex}, adding ${name}`);
+      sockets[socketIndex] = { id: socket.id, socket, name: name };
+    }
+
+    //console.log(sockets);
+  });
   // socket.on("receiveMove", (move) => {
   //   res.send({ move });
   // });
@@ -39,11 +65,29 @@ app.post("/start", (req, res) => {
 });
 
 app.post("/move", (req, res) => {
-  console.log("Emitting move");
-  app.socket.emit("receiveMove", req.body, (move) => {
-    //console.log({ res, move });
-    res.json({ move });
-  });
+  //console.log(req.body);
+  const snakeName = req.body.you.name;
+  console.log(`Snake name: ${snakeName}`);
+  let snakeSocket = sockets.find((o) => o.name === snakeName);
+  console.log(`Socket ${snakeSocket.id} found for ${snakeName}`);
+
+  if (snakeSocket.id !== null) {
+    console.log(`Emitting move to ${snakeSocket.id}`);
+    snakeSocket.socket.emit("receiveMove", req.body, (move) => {
+      console.log(`${snakeSocket.id} sent ${move} for ${snakeName}`);
+      if (validMoves.includes(move)) {
+        res.json({ move, shout: snakeName });
+      } else {
+        console.log(`${snakeName} sent invalid move`);
+        res.json({ move: "left", shout: snakeName });
+      }
+    });
+  }
+
+  // app.socket.emit("receiveMove", req.body, (move) => {
+  //   //console.log({ res, move });
+  //   res.json({ move });
+  // });
 });
 
 app.post("/end", (req, res) => {
