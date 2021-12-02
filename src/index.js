@@ -80,7 +80,7 @@ app.post("/:id/start", (req, res) => {
 
 app.post("/:id/move", (req, res) => {
   //console.log(req.body);
-  const snakeName = req.body.you.name;
+  const snakeName = req.params.id;
   console.log(`Snake name: ${snakeName}`);
   let snakeSocket = sockets.find((o) => o.name === snakeName);
 
